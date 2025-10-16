@@ -137,7 +137,3 @@ L.marker([LATITUDE, LONGITUDE]).addTo(map)
 ## 📜 License
 
 This project is open-source and available under the **MIT License**.
-
----
-
-Made with ❤️ by **Bastien Notéris** using [Leaflet](https://leafletjs.com/) and [Express.js](https://expressjs.com/)
