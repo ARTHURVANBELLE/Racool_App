@@ -12,7 +12,52 @@
     />
   </head>
   <body>
-    <div id="map"></div>
+    <div class="container">
+      <div id="sidebar">
+        <h1>Racool Controls</h1>
+        <div id="status" class="sidebar-section">
+          <h2>📍 Status</h2>
+          <div id="statusContent">
+            No buildings or vehicles selected. Click on a marker to see details.
+          </div>
+        </div>
+        <div id="info" class="sidebar-section">
+          <h2>📊 Information</h2>
+          <div id="infoContent">
+            Number of devices connected / Number of devices
+          </div>
+        </div>
+
+        <div id="legend" class="sidebar-section">
+          <h2>Legend</h2>
+          <p>🔵 : Vehicle Location</p>
+          <p>🔴 : Building Location</p>
+          <p>🟢 : Active Device</p>
+          <p>🟡 : Inactive Device</p>
+        </div>
+        <div id="searchbar" class="sidebar-section">
+          <h2>🔎 Search</h2>
+          <div class="search-container">
+            <input
+              type="text"
+              id="searchInput"
+              placeholder="Enter location or device name..."
+            />
+            <button id="searchButton">Search Location</button>
+          </div>
+        </div>
+        <div id="filters" class="sidebar-section">
+          <h2>🔍 Filters</h2>
+          <div class="filter-buttons">
+            <button id="startButton">Show Vehicles Info</button>
+            <button id="stopButton">Show Buildings Info</button>
+            <button id="allButton">Show All Markers</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="map"></div>
+    </div>
 
     <script
       src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
@@ -21,6 +66,5 @@
     ></script>
 
     <script src="/main.js" defer></script>
-
   </body>
 </html>
