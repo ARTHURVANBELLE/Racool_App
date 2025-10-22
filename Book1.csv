@@ -1,0 +1,17 @@
+﻿ID;Lat;Long;Co2;Temp;OccupancyRate;Name;type
+1;51.505;-0.09;757;18;40;Office1;Building
+2;51.506;-0.10;744;19;20;Office2;Building
+3;51.507;-0.11;731;19,5;80;Office3;Building
+4;51.508;-0.12;719;18,5;30;Office4;Building
+5;51.509;-0.13;706;24;50;Tram1-wagon1;Vehicle
+6;51.510;-0.14;693;22;75;Tram1-wagon2;Vehicle
+7;51.511;-0.15;680;26;90;Tram1-wagon3;Vehicle
+8;51.512;-0.16;667;23;60;Tram1-wagon4;Vehicle
+9;51.513;-0.17;654;24;80;Tram2-wagon1;Vehicle
+10;51.514;-0.18;641;25;55;Tram2-wagon2;Vehicle
+11;51.515;-0.19;629;22;70;Tram2-wagon3;Vehicle
+12;51.516;-0.20;616;26;82;Tram2-wagon4;Vehicle
+13;51.517;-0.21;603;25;66;Tram3-wagon1;Vehicle
+14;51.518;-0.22;590;24;60;Tram3-wagon2;Vehicle
+15;51.519;-0.23;577;24;58;Tram3-wagon3;Vehicle
+16;51.520;-0.24;564;23;56;Tram3-wagon4;Vehicle
