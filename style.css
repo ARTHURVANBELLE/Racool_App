@@ -154,6 +154,65 @@ button:active {
   border-radius: 0;
 }
 
+/* Custom marker styles */
+.custom-marker {
+  background: none !important;
+  border: none !important;
+}
+
+.marker-icon {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  border: 4px solid #27ae60; /* Green outer circle for all markers */
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.marker-icon:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  border-color: #2ecc71; /* Brighter green on hover */
+}
+
+.red-marker {
+  background: linear-gradient(135deg, #e74c3c, #c0392b); /* Red inner for buildings */
+}
+
+.blue-marker {
+  background: linear-gradient(135deg, #3498db, #2980b9); /* Blue inner for vehicles */
+}
+
+/* Popup styles */
+.area-card {
+  min-width: 200px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.area-card h3 {
+  margin: 0 0 10px 0;
+  color: #2c3e50;
+  font-size: 16px;
+  border-bottom: 2px solid #3498db;
+  padding-bottom: 5px;
+}
+
+.card-info {
+  margin: 10px 0;
+  line-height: 1.5;
+  color: #34495e;
+}
+
+.area-card p {
+  margin: 5px 0;
+  color: #34495e;
+}
+
 /* Custom scrollbar for webkit browsers */
 /* Removed scrollbar styles since sidebar is no longer scrollable */
 
