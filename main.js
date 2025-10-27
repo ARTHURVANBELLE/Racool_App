@@ -29,7 +29,8 @@ async function loadCsvData() {
                 item.lat, 
                 item.long, 
                 item.name, 
-                `<strong>CO2:</strong> ${item.co2} ppm<br><br><strong>Temperature:</strong> ${item.temp}°C`, 
+                item.co2,
+                item.temp,
                 item.occupancyrate,
                 markerColor,
                 cleanType
@@ -43,9 +44,14 @@ async function loadCsvData() {
         console.error('Error loading CSV data:', error);
     }
 }
+function getOccupancyColor(rate) {
+  const r = Math.max(0, Math.min(100, Number(rate) || 0)); 
+  const hue = 120 - (r * 1.2); 
+  return `hsl(${hue}deg 75% 45%)`;
+}
 
 //marker init with custom colors
-function initMarker(lat, lon, areaName, areaInfo, occupancyRate, color, type) {
+function initMarker(lat, lon, areaName, co2, temp, occupancyRate, color, type) {
     console.log('Creating marker with color:', color, 'for type:', type); // Debug log
     // Create custom icon based on type with green outer circle
     var customIcon = L.divIcon({
@@ -56,14 +62,24 @@ function initMarker(lat, lon, areaName, areaInfo, occupancyRate, color, type) {
     });
     
     var newMarker = L.marker([lat, lon], {icon: customIcon}).addTo(map);
+    const occupancyColor = getOccupancyColor(occupancyRate);
     
     // Bind popup content once when marker is created
-    var cardContent = '<div class="area-card">' +
-                      '<h3>' + areaName + '</h3>' +
-                      '<div class="card-info">' + areaInfo + '</div>' +
-                      '<p><strong>Occupancy Rate:</strong> ' + occupancyRate + '%</p>' +
-                      '<p><strong>Type:</strong> ' + type + '</p>' +
-                      '</div>';
+    var cardContent = `
+      <div class="area-card">
+        <h3>${areaName}</h3>
+        <div class="card-info">
+          <p><strong>CO2:</strong> ${co2} ppm</p>
+          <p><strong>Temperature:</strong> ${temp}°C</p>
+          <div class="gauge" style="width: 200px; --rotation: ${occupancyRate*1.8}deg; --color:${occupancyColor}; --background:#e9ecef;">
+            <div class="percentage"></div>
+            <div class="mask"></div>
+            <span class="value"> <strong>Occupancy</strong></span>
+          </div>
+          <p><strong>Type:</strong> ${type}</p>
+        </div>
+      </div>
+    `;
     newMarker.bindPopup(cardContent);
     
     newMarker.on('click', function() {
@@ -115,6 +131,8 @@ function parseCsvData(csvData) {
     }
     return result;
 }
+
+
 
 // Update information section in sidebar
 function updateInfoSection(data) {
