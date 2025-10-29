@@ -23,6 +23,7 @@ body {
   box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
   display: flex;
   flex-direction: column;
+  overflow: auto;
 }
 
 #sidebar h1 {
@@ -266,7 +267,98 @@ button:active {
   bottom:0; right:5%;   
  }
 
+ .custom-marker-pin { background: transparent; }
 
+/* pin circle + tail */
+.pin{
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 18px;
+  line-height: 1;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+  background: var(--pin-color, #5cb85c);
+  position: relative;
+  transform: translateY(-6px);
+}
+
+/* triangular tail */
+.pin::after{
+  content: "";
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: -8px;
+  width: 0;
+  height: 0;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-top: 8px solid var(--pin-color, #5cb85c);
+}
+
+.pin .emoji{
+  pointer-events: none;
+  user-select: none;
+}
+
+.wagons-container {
+  margin: 12px 0;
+}
+
+.wagons-label {
+  margin-bottom: 10px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.wagons-list {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.wagon-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 60px;
+  height: 60px;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  transition: transform 0.2s ease;
+  cursor: pointer;
+}
+
+.wagon-item:hover {
+  transform: scale(1.1);
+}
+
+.wagon-icon {
+  font-size: 24px;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.wagon-occupancy {
+  font-size: 11px;
+  font-weight: 700;
+  color: #fff;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+}
+
+/* ensure the pin emoji still centers nicely */
+.custom-marker-pin .pin .emoji {
+  font-size: 18px;
+  line-height: 1;
+}
+
+/* ensure popup doesn't overlap too much */
+.leaflet-div-icon { background: transparent; border: none; }
 
 /* Custom scrollbar for webkit browsers */
 /* Removed scrollbar styles since sidebar is no longer scrollable */

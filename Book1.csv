@@ -1,17 +1,22 @@
-﻿ID;lat;long;co2;temp;occupancyRate;name;type
-1;51.505;-0.09;757;18;40;Office1;Building
-2;51.506;-0.10;744;19;20;Office2;Building
-3;51.507;-0.11;731;19,5;80;Office3;Building
-4;51.508;-0.12;719;18,5;30;Office4;Building
-5;51.509;-0.13;706;24;50;Tram1-wagon1;Vehicle
-6;51.510;-0.14;693;22;75;Tram1-wagon2;Vehicle
-7;51.511;-0.15;680;26;90;Tram1-wagon3;Vehicle
-8;51.512;-0.16;667;23;60;Tram1-wagon4;Vehicle
-9;51.513;-0.17;654;24;80;Tram2-wagon1;Vehicle
-10;51.514;-0.18;641;25;55;Tram2-wagon2;Vehicle
-11;51.515;-0.19;629;22;70;Tram2-wagon3;Vehicle
-12;51.516;-0.20;616;26;82;Tram2-wagon4;Vehicle
-13;51.517;-0.21;603;25;66;Tram3-wagon1;Vehicle
+﻿ID;lat;long;co2;temp;occupancyRate;name;type;wagonsOccupancyList
+1;50.8443;4.3506;757;18;40;Conservatoire Royale;Building
+2;50.8432;4.356865;744;19;20;Bibliothèqe Royale de Belgique (KBR);Building
+3;50.8463;4.35185;731;19,5;80;Hôtel de Ville de Bruxelles;Building
+4;50.8547;4.35492;719;18,5;30;Théâtre National Wallonie-Bruxelles;Building
+5;50.8463;4.35878;706;24;50;Gare Bruxelles-Central;Gare
+6;50.8512;4.3527;693;22;75;De Brouckère;Gare
+7;50.840288;4.34125;680;26;90;Lemmonier;Gare
+8;50.85183 ;4.362426;667;23;60;Bruxelles Congrès;Gare
+9;50.850449 ;4.339029;654;24;80;Porte de Ninove;Gare
+10;50.846; 4.35;641;25;55;Tram 4;Vehicle;[20,47,38,79]
+11;50.845523 ;4.361564;629;22;70;Tram 92;Vehicle; [57,18,79]
+12;50.835434 ;4.355412;616;26;82;Bus 61;Vehicle; [71]
+13;50.840235 ;4.344266;25;66;28;Train S4;Vehicle; [57, 23, 18, 81, 20, 31, 42]
 14;51.518;-0.22;590;24;60;Tram3-wagon2;Vehicle
 15;51.519;-0.23;577;24;58;Tram3-wagon3;Vehicle
 16;51.520;-0.24;564;23;56;Tram3-wagon4;Vehicle
+17;50.848623  ;4.349373;654;24;80;McDonald's;Restaurant
+18;50.852863 ;4.346893;654;18;12;Au Bassin;Restaurant
+19;50.843175; 4.349565; 621; 22; 81; CHU Saint-Pierre; Hopital
+20; 50.854321; 4.360533; 578; 20; 33; Clinique St-Jean; Hopital
+

@@ -1,6 +1,5 @@
-
 // Initialize the map
-var map = L.map('map').setView([51.505, -0.09], 18);
+var map = L.map('map').setView([50.846, 4.35], 15);
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     maxZoom: 19,
     attribution: '&copy; OpenStreetMap contributors'
@@ -8,6 +7,14 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 
 // Load and parse CSV data
 loadCsvData();
+
+const ElementEmojiDict = {
+    'Building': '🏢',
+    'Gare': '🚉',
+    'Vehicle': '🚋',
+    'Restaurant': '🍽️',
+    'Hopital': '🏥'
+};
 
 async function loadCsvData() {
     try {
@@ -33,7 +40,8 @@ async function loadCsvData() {
                 item.temp,
                 item.occupancyrate,
                 markerColor,
-                cleanType
+                cleanType,
+                item.wagons // pass wagons (may be undefined)
             );
         });
         
@@ -51,31 +59,61 @@ function getOccupancyColor(rate) {
 }
 
 //marker init with custom colors
-function initMarker(lat, lon, areaName, co2, temp, occupancyRate, color, type) {
+function initMarker(lat, lon, areaName, co2, temp, occupancyRate, color, type, wagons) {
     console.log('Creating marker with color:', color, 'for type:', type); // Debug log
-    // Create custom icon based on type with green outer circle
-    var customIcon = L.divIcon({
-        className: 'custom-marker',
-        html: `<div class="marker-icon ${color}-marker"></div>`,
-        iconSize: [30, 30],
-        iconAnchor: [15, 15]
-    });
-    
-    var newMarker = L.marker([lat, lon], {icon: customIcon}).addTo(map);
     const occupancyColor = getOccupancyColor(occupancyRate);
+    const emoji = ElementEmojiDict[type] || '❓';
+
+    var customIcon = L.divIcon({
+        className: 'custom-marker-pin',
+        html: `<div class="pin" style="--pin-color: ${occupancyColor};">
+                 <span class="emoji">${emoji}</span>
+               </div>`,
+        iconSize: [36, 46],
+        iconAnchor: [18, 46],
+        popupAnchor: [0, -40]
+    });
+
+    var newMarker = L.marker([lat, lon], {icon: customIcon}).addTo(map);
     
-    // Bind popup content once when marker is created
+    // Build popup content: for Vehicle show wagons, otherwise show gauge
+    let innerHtml = '';
+    if ((type || '').toLowerCase() === 'vehicle' && Array.isArray(wagons) && wagons.length > 0) {
+        const wagonBoxes = wagons.map((v, idx) => {
+            const val = Number(v) || 0;
+            const c = getOccupancyColor(val);
+            return `
+              <div class="wagon-item" style="background:${c};">
+                <div class="wagon-icon">🚋</div>
+                <div class="wagon-occupancy">${val}%</div>
+              </div>
+            `;
+        }).join('');
+        innerHtml = `
+          <div class="wagons-container">
+            <div class="wagons-label"><strong>Wagons:</strong></div>
+            <div class="wagons-list">
+              ${wagonBoxes}
+            </div>
+          </div>
+        `;
+    } else {
+        innerHtml = `
+          <div class="gauge" style="width: 200px; --rotation: ${ (Number(occupancyRate)||0) * 1.8 }deg; --color:${occupancyColor}; --background:#e9ecef;">
+            <div class="percentage"></div>
+            <div class="mask"></div>
+            <span class="value"> <strong>Occupancy</strong></span>
+          </div>
+        `;
+    }
+
     var cardContent = `
       <div class="area-card">
         <h3>${areaName}</h3>
         <div class="card-info">
           <p><strong>CO2:</strong> ${co2} ppm</p>
           <p><strong>Temperature:</strong> ${temp}°C</p>
-          <div class="gauge" style="width: 200px; --rotation: ${occupancyRate*1.8}deg; --color:${occupancyColor}; --background:#e9ecef;">
-            <div class="percentage"></div>
-            <div class="mask"></div>
-            <span class="value"> <strong>Occupancy</strong></span>
-          </div>
+          ${innerHtml}
           <p><strong>Type:</strong> ${type}</p>
         </div>
       </div>
@@ -83,25 +121,26 @@ function initMarker(lat, lon, areaName, co2, temp, occupancyRate, color, type) {
     newMarker.bindPopup(cardContent);
     
     newMarker.on('click', function() {
-        newMarker.openPopup(); // Just open the already bound popup
+        newMarker.openPopup();
         updateStatusSection(areaName, type, occupancyRate);
     });
     
-    // Store marker data for filtering
+    // Store marker data for filtering (include wagons)
     allMarkers.push({
         marker: newMarker,
         lat: lat,
         long: lon,
         name: areaName,
         type: type,
-        occupancyRate: occupancyRate // This parameter comes correctly from the function call
+        occupancyRate: occupancyRate,
+        wagons: wagons
     });
 }
 
 function parseCsvData(csvData) {
     const lines = csvData.trim().split('\n');
     const result = [];
-    const headers = lines[0].split(';');
+    const headers = lines[0].split(';').map(h => h.toLowerCase().trim());
     console.log('CSV Headers:', headers); // Debug log
 
     for (let i = 1; i < lines.length; i++) {
@@ -111,16 +150,31 @@ function parseCsvData(csvData) {
         const obj = {};
 
         for (let j = 0; j < headers.length; j++) {
-            const header = headers[j].toLowerCase().trim(); // Added trim() to remove any whitespace
-            let value = currentLine[j] ? currentLine[j].trim() : ''; // Trim all values
+            const header = headers[j];
+            let value = currentLine[j] ? currentLine[j].trim() : '';
             
             // Parse numeric values and handle decimal commas
             if (header === 'lat' || header === 'long') {
-                obj[header] = parseFloat(value);
-            } else if (header === 'co2' || header === 'occupancyrate') {
-                obj[header] = parseInt(value);
-            } else if (header === 'temp') {
                 obj[header] = parseFloat(value.replace(',', '.'));
+            } else if (header === 'co2' || header === 'occupancyrate' || header === 'id') {
+                obj[header] = value === '' ? null : parseInt(value);
+            } else if (header === 'temp') {
+                obj[header] = value === '' ? null : parseFloat(value.replace(',', '.'));
+            } else if (header === 'wagonsoccupancylist') {
+                // Parse wagons list from JSON or comma-separated values
+                let wagons = undefined;
+                if (value) {
+                    try {
+                        // Try JSON parse: [20,47,38,79]
+                        wagons = JSON.parse(value.replace(/,\s+/g, ','));
+                        if (!Array.isArray(wagons)) wagons = undefined;
+                    } catch (e) {
+                        // Fallback: extract numbers
+                        const nums = value.match(/-?\d+(\.\d+)?/g);
+                        if (nums) wagons = nums.map(n => Number(n));
+                    }
+                }
+                obj.wagons = wagons;
             } else {
                 obj[header] = value;
             }
@@ -154,14 +208,21 @@ let allMarkers = [];
 
 // Add filter functionality
 document.addEventListener('DOMContentLoaded', function() {
-    document.getElementById('startButton').addEventListener('click', function() {
+    document.getElementById('vehicleButton').addEventListener('click', function() {
         filterMarkers('Vehicle');
     });
-    
-    document.getElementById('stopButton').addEventListener('click', function() {
+
+    document.getElementById('buildingButton').addEventListener('click', function() {
         filterMarkers('Building');
     });
-    
+
+    document.getElementById('hopitalButton').addEventListener('click', function() {
+        filterMarkers('Hopital');
+    });
+    document.getElementById('restaurantButton').addEventListener('click', function() {
+        filterMarkers('Restaurant');
+    });
+
     document.getElementById('allButton').addEventListener('click', function() {
         showAllMarkers();
     });
