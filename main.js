@@ -11,7 +11,7 @@ loadCsvData();
 
 async function loadCsvData() {
     try {
-        const response = await fetch('/Book1.csv');
+        const response = await fetch('./Book1.csv');
         const csvText = await response.text();
         const parsedData = parseCsvData(csvText);
         
