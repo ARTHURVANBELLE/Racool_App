@@ -1,8 +1,8 @@
 ﻿ID;lat;long;co2;temp;occupancyRate;name;type;wagonsOccupancyList; floorsOccupancyList
 1;50.8443;4.3506;757;18;40;Conservatoire Royale;Building;;[30,45]
-2;50.8432;4.356865;744;19;20;Bibliothèqe Royale de Belgique (KBR);Building;;[15,25,30]
-3;50.8463;4.35185;731;19,5;80;Hôtel de Ville de Bruxelles;Building;;[85,75,80,90]
-4;50.8547;4.35492;719;18,5;30;Théâtre National Wallonie-Bruxelles;Building;;[91, 88, 81]
+2;50.8432;4.356865;[744, 702, 757];19;20;Bibliothèqe Royale de Belgique (KBR);Building;;[15,25,30]
+3;50.8463;4.35185;[731, 732, 740, 738];19,5;80;Hôtel de Ville de Bruxelles;Building;;[85,75,80,90]
+4;50.8547;4.35492;[719, 731, 699];18,5;30;Théâtre National Wallonie-Bruxelles;Building;;[91, 88, 81]
 5;50.8463;4.35878;706;24;50;Gare Bruxelles-Central;Gare
 6;50.8512;4.3527;693;22;75;De Brouckère;Gare
 7;50.840288;4.34125;680;26;90;Lemmonier;Gare
