@@ -191,7 +191,7 @@ button:active {
 
 /* Popup styles */
 .area-card {
-  min-width: 200px;
+  min-width: 50%;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
@@ -318,7 +318,9 @@ button:active {
 .wagons-list {
   display: flex;
   gap: 10px;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  padding: 8px 0;
 }
 
 .wagon-item {
@@ -326,29 +328,59 @@ button:active {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  width: 60px;
-  height: 60px;
+  padding: 8px;
+  min-width: 80px;
+  flex-shrink: 0;
   border-radius: 8px;
   box-shadow: 0 2px 6px rgba(0,0,0,0.2);
   transition: transform 0.2s ease;
   cursor: pointer;
+  position: relative;
 }
 
 .wagon-item:hover {
-  transform: scale(1.1);
+  transform: scale(1.05);
 }
 
 .wagon-icon {
-  font-size: 24px;
+  font-size: 26px;
   line-height: 1;
   margin-bottom: 4px;
 }
 
-.wagon-occupancy {
+.wagon-info {
+  text-align: center;
   font-size: 11px;
-  font-weight: 700;
   color: #fff;
   text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+  line-height: 1.4;
+}
+
+.wagon-occupancy {
+  font-weight: 700;
+  margin-bottom: 2px;
+}
+
+.wagon-temp,
+.wagon-co2 {
+  font-weight: 600;
+  font-size: 10px;
+}
+
+.wagon-number {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  background-color: rgba(0, 0, 0, 0.5);
+  color: #fff;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 700;
 }
 
 /* ensure the pin emoji still centers nicely */
@@ -379,4 +411,82 @@ button:active {
     height: 60vh;
     order: 1;
   }
+}
+
+.floors-container {
+  margin: 12px 0;
+}
+
+.floors-label {
+  margin-bottom: 10px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.floors-list {
+  display: flex;
+  gap: 10px;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  padding: 8px 0;
+}
+
+.floor-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+  min-width: 80px;
+  flex-shrink: 0;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  transition: transform 0.2s ease;
+  cursor: pointer;
+  position: relative;
+}
+
+.floor-item:hover {
+  transform: scale(1.05);
+}
+
+.floor-number {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  background-color: rgba(0, 0, 0, 0.5);
+  color: #fff;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.floor-icon {
+  font-size: 26px;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.floor-info {
+  text-align: center;
+  font-size: 11px;
+  color: #fff;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+  line-height: 1.4;
+}
+
+.floor-occupancy {
+  font-weight: 700;
+  margin-bottom: 2px;
+}
+
+.floor-temp,
+.floor-co2 {
+  font-weight: 600;
+  font-size: 10px;
 }

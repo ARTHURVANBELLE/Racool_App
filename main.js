@@ -22,26 +22,34 @@ async function loadCsvData() {
         const csvText = await response.text();
         const parsedData = parseCsvData(csvText);
         
-        // Display markers for each data point
         parsedData.forEach(item => {
-            console.log('Item data:', item); // Debug log
-            console.log('Raw type value:', JSON.stringify(item.type)); // Debug the exact type value
+            console.log('Item data:', item);
             
-            // Clean the type value and compare
             const cleanType = item.type ? item.type.trim() : '';
             const markerColor = cleanType === 'Building' ? 'red' : 'blue';
             
-            console.log('Clean type:', cleanType, 'Marker color:', markerColor); // Debug log
+            let overallOccupancy = item.occupancyrate;
+            if (cleanType.toLowerCase() === 'vehicle' && Array.isArray(item.wagons)) {
+                overallOccupancy = Math.round(
+                    item.wagons.reduce((sum, v) => sum + Number(v), 0) / item.wagons.length
+                );
+            } else if (cleanType.toLowerCase() === 'building' && Array.isArray(item.floors)) {
+                overallOccupancy = Math.round(
+                    item.floors.reduce((sum, v) => sum + Number(v), 0) / item.floors.length
+                );
+            }
+            
             initMarker(
                 item.lat, 
                 item.long, 
                 item.name, 
                 item.co2,
                 item.temp,
-                item.occupancyrate,
+                overallOccupancy,
                 markerColor,
                 cleanType,
-                item.wagons // pass wagons (may be undefined)
+                item.wagons,
+                item.floors
             );
         });
         
@@ -59,8 +67,8 @@ function getOccupancyColor(rate) {
 }
 
 //marker init with custom colors
-function initMarker(lat, lon, areaName, co2, temp, occupancyRate, color, type, wagons) {
-    console.log('Creating marker with color:', color, 'for type:', type); // Debug log
+function initMarker(lat, lon, areaName, co2, temp, occupancyRate, color, type, wagons, floors) {
+    console.log('Creating marker with color:', color, 'for type:', type);
     const occupancyColor = getOccupancyColor(occupancyRate);
     const emoji = ElementEmojiDict[type] || '❓';
 
@@ -76,16 +84,28 @@ function initMarker(lat, lon, areaName, co2, temp, occupancyRate, color, type, w
 
     var newMarker = L.marker([lat, lon], {icon: customIcon}).addTo(map);
     
-    // Build popup content: for Vehicle show wagons, otherwise show gauge
     let innerHtml = '';
     if ((type || '').toLowerCase() === 'vehicle' && Array.isArray(wagons) && wagons.length > 0) {
-        const wagonBoxes = wagons.map((v, idx) => {
-            const val = Number(v) || 0;
-            const c = getOccupancyColor(val);
+        const wagonBoxes = wagons.map((occupancy, idx) => {
+            const occ = Number(occupancy) || 0;
+            const c = getOccupancyColor(occ);
+            
+            const wagonTemp = Array.isArray(temp) && temp[idx] !== undefined 
+                ? temp[idx] 
+                : (Array.isArray(temp) ? temp[0] : temp);
+            const wagonCo2 = Array.isArray(co2) && co2[idx] !== undefined 
+                ? co2[idx] 
+                : (Array.isArray(co2) ? co2[0] : co2);
+            
             return `
               <div class="wagon-item" style="background:${c};">
+                <div class="wagon-number">${idx + 1}</div>
                 <div class="wagon-icon">🚋</div>
-                <div class="wagon-occupancy">${val}%</div>
+                <div class="wagon-info">
+                  <div class="wagon-occupancy">${occ}%</div>
+                  <div class="wagon-temp">${wagonTemp}°C</div>
+                  <div class="wagon-co2">${wagonCo2} ppm</div>
+                </div>
               </div>
             `;
         }).join('');
@@ -97,7 +117,41 @@ function initMarker(lat, lon, areaName, co2, temp, occupancyRate, color, type, w
             </div>
           </div>
         `;
+    } else if ((type || '').toLowerCase() === 'building' && Array.isArray(floors) && floors.length > 0) {
+        const floorBoxes = floors.map((occupancy, idx) => {
+            const occ = Number(occupancy) || 0;
+            const c = getOccupancyColor(occ);
+            
+            const floorTemp = Array.isArray(temp) && temp[idx] !== undefined 
+                ? temp[idx] 
+                : (Array.isArray(temp) ? temp[0] : temp);
+            const floorCo2 = Array.isArray(co2) && co2[idx] !== undefined 
+                ? co2[idx] 
+                : (Array.isArray(co2) ? co2[0] : co2);
+            
+            return `
+              <div class="floor-item" style="background:${c};">
+                <div class="floor-number">F${idx}</div>
+                <div class="floor-icon">🏢</div>
+                <div class="floor-info">
+                  <div class="floor-occupancy">${occ}%</div>
+                  <div class="floor-temp">${floorTemp}°C</div>
+                  <div class="floor-co2">${floorCo2} ppm</div>
+                </div>
+              </div>
+            `;
+        }).join('');
+        innerHtml = `
+          <div class="floors-container">
+            <div class="floors-label"><strong>Floors:</strong></div>
+            <div class="floors-list">
+              ${floorBoxes}
+            </div>
+          </div>
+        `;
     } else {
+        const displayCo2 = Array.isArray(co2) ? co2[0] : co2;
+        const displayTemp = Array.isArray(temp) ? temp[0] : temp;
         innerHtml = `
           <div class="gauge" style="width: 200px; --rotation: ${ (Number(occupancyRate)||0) * 1.8 }deg; --color:${occupancyColor}; --background:#e9ecef;">
             <div class="percentage"></div>
@@ -111,8 +165,10 @@ function initMarker(lat, lon, areaName, co2, temp, occupancyRate, color, type, w
       <div class="area-card">
         <h3>${areaName}</h3>
         <div class="card-info">
-          <p><strong>CO2:</strong> ${co2} ppm</p>
-          <p><strong>Temperature:</strong> ${temp}°C</p>
+          ${(type || '').toLowerCase() !== 'vehicle' && (type || '').toLowerCase() !== 'building' ? `
+            <p><strong>CO2:</strong> ${Array.isArray(co2) ? co2[0] : co2} ppm</p>
+            <p><strong>Temperature:</strong> ${Array.isArray(temp) ? temp[0] : temp}°C</p>
+          ` : ''}
           ${innerHtml}
           <p><strong>Type:</strong> ${type}</p>
         </div>
@@ -125,7 +181,6 @@ function initMarker(lat, lon, areaName, co2, temp, occupancyRate, color, type, w
         updateStatusSection(areaName, type, occupancyRate);
     });
     
-    // Store marker data for filtering (include wagons)
     allMarkers.push({
         marker: newMarker,
         lat: lat,
@@ -133,7 +188,8 @@ function initMarker(lat, lon, areaName, co2, temp, occupancyRate, color, type, w
         name: areaName,
         type: type,
         occupancyRate: occupancyRate,
-        wagons: wagons
+        wagons: wagons,
+        floors: floors
     });
 }
 
@@ -141,10 +197,10 @@ function parseCsvData(csvData) {
     const lines = csvData.trim().split('\n');
     const result = [];
     const headers = lines[0].split(';').map(h => h.toLowerCase().trim());
-    console.log('CSV Headers:', headers); // Debug log
+    console.log('CSV Headers:', headers);
 
     for (let i = 1; i < lines.length; i++) {
-        if (lines[i].trim() === '') continue; // Skip empty lines
+        if (lines[i].trim() === '') continue;
         
         const currentLine = lines[i].split(';');
         const obj = {};
@@ -153,34 +209,60 @@ function parseCsvData(csvData) {
             const header = headers[j];
             let value = currentLine[j] ? currentLine[j].trim() : '';
             
-            // Parse numeric values and handle decimal commas
             if (header === 'lat' || header === 'long') {
                 obj[header] = parseFloat(value.replace(',', '.'));
-            } else if (header === 'co2' || header === 'occupancyrate' || header === 'id') {
-                obj[header] = value === '' ? null : parseInt(value);
+            } else if (header === 'co2') {
+                let co2Val = undefined;
+                try {
+                    const parsed = JSON.parse(value.replace(/,\s+/g, ','));
+                    co2Val = Array.isArray(parsed) ? parsed : [parsed];
+                } catch (e) {
+                    const nums = value.match(/-?\d+(\.\d+)?/g);
+                    co2Val = nums ? nums.map(n => Number(n)) : undefined;
+                }
+                obj.co2 = co2Val;
             } else if (header === 'temp') {
-                obj[header] = value === '' ? null : parseFloat(value.replace(',', '.'));
+                let tempVal = undefined;
+                try {
+                    const parsed = JSON.parse(value.replace(/,\s+/g, ','));
+                    tempVal = Array.isArray(parsed) ? parsed : [parsed];
+                } catch (e) {
+                    const nums = value.match(/-?\d+(\.\d+)?/g);
+                    tempVal = nums ? nums.map(n => Number(n)) : undefined;
+                }
+                obj.temp = tempVal;
+            } else if (header === 'occupancyrate' || header === 'id') {
+                obj[header] = value === '' ? null : parseInt(value);
             } else if (header === 'wagonsoccupancylist') {
-                // Parse wagons list from JSON or comma-separated values
                 let wagons = undefined;
                 if (value) {
                     try {
-                        // Try JSON parse: [20,47,38,79]
                         wagons = JSON.parse(value.replace(/,\s+/g, ','));
                         if (!Array.isArray(wagons)) wagons = undefined;
                     } catch (e) {
-                        // Fallback: extract numbers
                         const nums = value.match(/-?\d+(\.\d+)?/g);
                         if (nums) wagons = nums.map(n => Number(n));
                     }
                 }
                 obj.wagons = wagons;
+            } else if (header === 'floorsoccupancylist') {
+                let floors = undefined;
+                if (value) {
+                    try {
+                        floors = JSON.parse(value.replace(/,\s+/g, ','));
+                        if (!Array.isArray(floors)) floors = undefined;
+                    } catch (e) {
+                        const nums = value.match(/-?\d+(\.\d+)?/g);
+                        if (nums) floors = nums.map(n => Number(n));
+                    }
+                }
+                obj.floors = floors;
             } else {
                 obj[header] = value;
             }
         }
 
-        console.log('Parsed object:', obj); // Debug log
+        console.log('Parsed object:', obj);
         result.push(obj);
     }
     return result;
