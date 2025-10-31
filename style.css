@@ -26,8 +26,29 @@ body {
   overflow: auto;
 }
 
+#sidebar-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  margin-bottom: 16px;
+  border-bottom: 2px solid #ddd;
+}
+
+.sidebar-logo {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+#sidebar-header h1 {
+  margin: 0;
+  font-size: 22px;
+}
+
 #sidebar h1 {
-  background-color: rgba(0, 0, 0, 0.2);
   margin: 0;
   padding: 15px;
   text-align: center;
